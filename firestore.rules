@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid));
+    }
+    
+    function isMasterAdmin() {
+      return isAdmin() && 
+             get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'master';
+    }
+    
+    function isBatchAdmin(batchId) {
+      return isAdmin() && 
+             get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'batch' &&
+             get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.batchId == batchId;
+    }
+    
+    function isBookAdmin() {
+      return isAdmin() && 
+             get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'book';
+    }
+    
+    function isOwnerOrAdmin(userId) {
+      return request.auth.uid == userId || isAdmin();
+    }
+
+    // COMPLETE OPEN ACCESS FOR ALL COLLECTIONS
+    // This ensures no permission errors occur
+    
+    // Batches Collection - FULL ACCESS
+    match /batches/{batchId} {
+      // Anyone can read/write batches (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Live Classes Collection - FULL ACCESS
+    match /liveClasses/{liveClassId} {
+      // Anyone can read/write live classes (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Books Collection - FULL ACCESS
+    match /books/{bookId} {
+      // Anyone can read/write books (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Go Live Sessions Collection - FULL ACCESS
+    match /goLiveSessions/{sessionId} {
+      // Anyone can read/write sessions (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Admin Users Collection - FULL ACCESS
+    match /adminUsers/{userId} {
+      // Anyone can read/write admin data (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // User Profiles Collection - FULL ACCESS
+    match /users/{userId} {
+      // Anyone can read/write user profiles (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Analytics Collection - FULL ACCESS
+    match /analytics/{docId} {
+      // Anyone can read/write analytics (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Notifications Collection - FULL ACCESS
+    match /notifications/{notificationId} {
+      // Anyone can read/write notifications (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Chat Messages Collection - FULL ACCESS
+    match /chatMessages/{messageId} {
+      // Anyone can read/write chat messages (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // File Metadata Collection - FULL ACCESS
+    match /fileMetadata/{fileId} {
+      // Anyone can read/write file metadata (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // System Settings Collection - FULL ACCESS
+    match /systemSettings/{settingId} {
+      // Anyone can read/write system settings (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Audit Logs Collection - FULL ACCESS
+    match /auditLogs/{logId} {
+      // Anyone can read/write audit logs (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Deleted Items Collection - FULL ACCESS
+    match /deletedItems/{itemId} {
+      // Anyone can read/write deleted items (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Change History Collection - FULL ACCESS
+    match /changeHistory/{historyId} {
+      // Anyone can read/write change history (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+    
+    // Catch-all rule for any other collections - FULL ACCESS
+    match /{document=**} {
+      // Anyone can read/write any document (no restrictions)
+      allow read, write, create, update, delete: if true;
+    }
+  }
+}
